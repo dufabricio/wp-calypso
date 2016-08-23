@@ -6,12 +6,13 @@ import ReactDom from 'react-dom';
 import { connect } from 'react-redux';
 import page from 'page';
 import classNames from 'classnames';
-import { filter, size, keyBy, map, includes } from 'lodash';
+import { get, filter, size, keyBy, map, includes } from 'lodash';
 
 /**
  * Internal dependencies
  */
 import { getPreference } from 'state/preferences/selectors';
+import { getCurrentUser } from 'state/current-user/selectors';
 import observe from 'lib/mixins/data-observe';
 import AllSites from 'my-sites/all-sites';
 import analytics from 'lib/analytics';
@@ -41,7 +42,8 @@ const SiteSelector = React.createClass( {
 		hideSelected: React.PropTypes.bool,
 		filter: React.PropTypes.func,
 		groups: React.PropTypes.bool,
-		onSiteSelect: React.PropTypes.func
+		onSiteSelect: React.PropTypes.func,
+		showRecentSites: React.PropTypes.bool
 	},
 
 	getDefaultProps() {
@@ -154,8 +156,8 @@ const SiteSelector = React.createClass( {
 		} else {
 			sites = this.props.sites.getVisible();
 
-			const { recentSites } = this.props;
-			if ( this.shouldShowGroups() && size( recentSites ) ) {
+			const { showRecentSites, recentSites } = this.props;
+			if ( showRecentSites && this.shouldShowGroups() && size( recentSites ) ) {
 				sites = filter( sites, ( { ID: siteId } ) => ! includes( recentSites, siteId ) );
 			}
 		}
@@ -197,7 +199,7 @@ const SiteSelector = React.createClass( {
 		if ( this.shouldShowGroups() && ! this.state.search ) {
 			return (
 				<div>
-					{ user.get().visible_site_count > 11 && this.renderRecentSites() }
+					{ this.props.showRecentSites && this.renderRecentSites() }
 					{ siteElements }
 				</div>
 			);
@@ -289,6 +291,7 @@ const SiteSelector = React.createClass( {
 
 export default connect( ( state ) => {
 	return {
+		showRecentSites: get( getCurrentUser( state ), 'visible_site_count', 0 ) > 11,
 		recentSites: getPreference( state, 'recentSites' )
 	};
 } )( SiteSelector );
