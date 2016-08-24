@@ -47,6 +47,14 @@
 	color: $gray-dark;
 }
 
+.help__course-teaser {
+	&.is-placeholder {
+		@include placeholder( 23% );
+		height: 64px;
+		margin-bottom: 15px;
+	}
+}
+
 .help__course-teaser .card {
 	border-left: 3px solid $blue-wordpress;
 	display: flex;
